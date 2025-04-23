@@ -2,17 +2,20 @@ const convertButton = document.querySelector(".convert-button")
 const currencySelect = document.querySelector(".currency-select")
 const currencySelectOne = document.querySelector(".currency-select1")
 
-function convertValues() {
+async function convertValues() {
     const inputCurrencyValue = parseFloat(document.querySelector(".input-currency").value)
     const currencyValueToConvert = document.querySelector(".currency-value-to-convert")
     const currencyValueConverted = document.querySelector(".currency-value")
 
-    const rates = {
+    const ratesResponse = await fetch("https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL,GBP-BRL")
+    const rates = await ratesResponse.json()
+
+    const conversionRates = {
         real: 1,
-        dolar: 5.0,
-        euro: 6.0,
-        libra: 7.0,
-        bitcoin: 10.0
+        dolar: Number(rates.USDBRL.bid),
+        euro: Number(rates.EURBRL.bid),
+        libra: Number(rates.GBPBRL.bid),
+        bitcoin: Number(rates.BTCBRL.bid)
     }
 
     const formatOptions = {
@@ -32,15 +35,20 @@ function convertValues() {
         return
     }
 
-    const valueInReal = inputCurrencyValue * rates[fromCurrency]
-    const convertedValue = valueInReal / rates[toCurrency]
+    // 1º converte de moeda de origem para real
+    const valueInReal = inputCurrencyValue * conversionRates[fromCurrency]
+
+    // 2º converte de real para a moeda de destino
+    const convertedValue = valueInReal / conversionRates[toCurrency]
 
     const fromOptions = formatOptions[fromCurrency]
     const toOptions = formatOptions[toCurrency]
 
+    // Mostra os valores formatados
     currencyValueConverted.innerHTML = new Intl.NumberFormat(fromOptions.locale, fromOptions).format(inputCurrencyValue)
     currencyValueToConvert.innerHTML = new Intl.NumberFormat(toOptions.locale, toOptions).format(convertedValue)
 }
+
 
 function changeCurrency() {
     const currencyName = document.getElementById("currency-name")
@@ -49,11 +57,11 @@ function changeCurrency() {
     switch (currencySelect.value) {
         case "real":
             currencyName.innerHTML = "Real"
-            currencyImage.src = "./assets/real.png"
+            currencyImage.src = "./assets/brazil.png"
             break
         case "dolar":
             currencyName.innerHTML = "Dólar"
-            currencyImage.src = "./assets/dolar.png"
+            currencyImage.src = "./assets/usa.png"
             break
         case "euro":
             currencyName.innerHTML = "Euro"
@@ -61,7 +69,7 @@ function changeCurrency() {
             break
         case "libra":
             currencyName.innerHTML = "Libra"
-            currencyImage.src = "./assets/libra.png"
+            currencyImage.src = "./assets/uk.png"
             break
         case "bitcoin":
             currencyName.innerHTML = "Bitcoin"
@@ -79,11 +87,11 @@ function changeCurrency1() {
     switch (currencySelectOne.value) {
         case "real":
             currencyName1.innerHTML = "Real"
-            currencyImage1.src = "./assets/real.png"
+            currencyImage1.src = "./assets/brazil.png"
             break
         case "dolar":
             currencyName1.innerHTML = "Dólar"
-            currencyImage1.src = "./assets/dolar.png"
+            currencyImage1.src = "./assets/usa.png"
             break
         case "euro":
             currencyName1.innerHTML = "Euro"
@@ -91,7 +99,7 @@ function changeCurrency1() {
             break
         case "libra":
             currencyName1.innerHTML = "Libra"
-            currencyImage1.src = "./assets/libra.png"
+            currencyImage1.src = "./assets/uk.png"
             break
         case "bitcoin":
             currencyName1.innerHTML = "Bitcoin"
@@ -101,6 +109,7 @@ function changeCurrency1() {
 
     convertValues()
 }
+    
 
 currencySelect.addEventListener("change", changeCurrency)
 currencySelectOne.addEventListener("change", changeCurrency1)
